@@ -1,0 +1,55 @@
+name: Docker API check
+
+on:
+  push:
+    paths:
+      - Dockerfile
+      - pyproject.toml
+      - uv.lock
+      - app/**
+      - .github/workflows/docker.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t sps-genai .
+      - name: Run container
+        run: docker run -d --name sps-genai -p 8000:80 sps-genai
+      - name: Check API
+        run: |
+          for i in {1..60}; do
+            if curl -fsS http://localhost:8000/ >/dev/null; then break; fi
+            sleep 2
+          done
+          python - <<'PY'
+          import json
+          import urllib.request
+
+          base = "http://localhost:8000"
+          with urllib.request.urlopen(base + "/", timeout=30) as response:
+              assert json.load(response) == {"Hello": "World"}
+
+          request = urllib.request.Request(
+              base + "/generate",
+              data=json.dumps({"start_word": "we", "length": 5}).encode(),
+              headers={"Content-Type": "application/json"},
+          )
+          with urllib.request.urlopen(request, timeout=30) as response:
+              assert json.load(response)["generated_text"].startswith("we ")
+
+          with urllib.request.urlopen(base + "/embedding?word=king", timeout=120) as response:
+              result = json.load(response)
+          assert result["word"] == "king"
+          assert result["dimensions"] == len(result["embedding"]) == 300
+          print("All Docker API checks passed")
+          PY
+      - name: Show container logs on failure
+        if: failure()
+        run: docker logs sps-genai || true
