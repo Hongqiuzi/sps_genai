@@ -1,0 +1,6 @@
+.venv/
+.tools/
+.python-runtimes/
+.uv-cache/
+__pycache__/
+.env
