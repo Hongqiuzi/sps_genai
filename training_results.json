@@ -1,0 +1,52 @@
+{
+  "test_loss": 1.0202654485702514,
+  "test_accuracy": 0.6545,
+  "epochs": 5,
+  "batch_size": 64,
+  "learning_rate": 0.001,
+  "optimizer": "Adam",
+  "seed": 42,
+  "device": "cpu",
+  "train_examples": 50000,
+  "test_examples": 10000,
+  "parameters": 825398,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 1.4082445054626465,
+      "train_accuracy": 0.49704,
+      "seconds": 48.87222279998241
+    },
+    {
+      "epoch": 2,
+      "train_loss": 1.1068869092178344,
+      "train_accuracy": 0.60602,
+      "seconds": 51.91424630000256
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.9551734996032715,
+      "train_accuracy": 0.66214,
+      "seconds": 51.10144349996699
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.8272604817390442,
+      "train_accuracy": 0.70772,
+      "seconds": 52.9390521000023
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.7138242611694336,
+      "train_accuracy": 0.74642,
+      "seconds": 54.337000100000296
+    }
+  ],
+  "sample": {
+    "test_index": 0,
+    "true_class_id": 3,
+    "true_class_name": "cat",
+    "predicted_class_id": 3,
+    "predicted_class_name": "cat"
+  }
+}
