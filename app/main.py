@@ -3,12 +3,15 @@ from io import BytesIO
 import pickle
 
 from fastapi import FastAPI, File, HTTPException, Query, UploadFile
+from fastapi.responses import Response
 from PIL import Image, UnidentifiedImageError
 from pydantic import BaseModel, Field
 import torch
 
 from app.bigram_model import BigramModel
 from app.cnn_model import CLASSES, image_transform, load_classifier
+from helper_lib.generator import generate_samples
+from helper_lib.model import load_generator
 
 app = FastAPI()
 
@@ -93,3 +96,17 @@ def classify_image(file: UploadFile = File(...)):
     with torch.inference_mode():
         class_id = model(inputs).argmax(dim=1).item()
     return {"class_id": class_id, "class_name": CLASSES[class_id]}
+
+
+@app.get("/generate-image", response_class=Response,
+         responses={200: {"content": {"image/png": {}}}})
+def generate_image(num_samples: int = Query(default=10, ge=1, le=16),
+                   seed: int | None = Query(default=None, ge=0, le=2**63 - 1)):
+    try:
+        model = load_generator()
+    except (OSError, RuntimeError, ValueError, EOFError, pickle.UnpicklingError) as exc:
+        raise HTTPException(status_code=503, detail="The trained GAN weights are unavailable. Run train_gan.py first.") from exc
+    image = generate_samples(model, num_samples=num_samples, seed=seed)
+    output = BytesIO()
+    image.save(output, format="PNG")
+    return Response(content=output.getvalue(), media_type="image/png")

@@ -7,10 +7,13 @@ on:
       - pyproject.toml
       - uv.lock
       - app/**
+      - helper_lib/**
       - models/**
       - assets/**
       - train_cnn.py
       - check_assignment2.py
+      - train_gan.py
+      - check_assignment3.py
       - .github/workflows/docker.yml
   workflow_dispatch:
 
@@ -34,6 +37,7 @@ jobs:
           done
           python - <<'PY'
           import json
+          import struct
           import urllib.request
 
           base = "http://localhost:8000"
@@ -84,6 +88,18 @@ jobs:
               assert error.code == 400
           else:
               raise AssertionError("Invalid images must be rejected")
+
+          with urllib.request.urlopen(base + "/generate-image?num_samples=4&seed=42", timeout=120) as response:
+              assert response.headers.get_content_type() == "image/png"
+              png = response.read()
+          assert png[:8] == b"\x89PNG\r\n\x1a\n"
+          assert struct.unpack(">II", png[16:24]) == (62, 62)
+          try:
+              urllib.request.urlopen(base + "/generate-image?num_samples=0", timeout=30)
+          except urllib.error.HTTPError as error:
+              assert error.code == 422
+          else:
+              raise AssertionError("Invalid sample counts must be rejected")
           print("All Docker API checks passed")
           PY
       - name: Show container logs on failure
