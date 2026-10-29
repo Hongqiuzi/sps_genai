@@ -18,7 +18,7 @@ app = FastAPI()
 corpus = [
     "The Count of Monte Cristo is a novel written by Alexandre Dumas. "
     "It tells the story of Edmond Dantes, who is falsely imprisoned and later seeks revenge.",
-    "this is another example sentence",
+    "this is another sentence in the corpus",
     "we are generating text based on bigram probabilities",
     "bigram models are simple but effective",
 ]
