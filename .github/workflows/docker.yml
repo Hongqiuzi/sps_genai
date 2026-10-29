@@ -7,6 +7,13 @@ on:
       - pyproject.toml
       - uv.lock
       - app/**
+      - helper_lib/**
+      - models/**
+      - assets/**
+      - train_cnn.py
+      - check_assignment2.py
+      - train_gan.py
+      - check_assignment3.py
       - .github/workflows/docker.yml
   workflow_dispatch:
 
@@ -30,6 +37,7 @@ jobs:
           done
           python - <<'PY'
           import json
+          import struct
           import urllib.request
 
           base = "http://localhost:8000"
@@ -48,6 +56,50 @@ jobs:
               result = json.load(response)
           assert result["word"] == "king"
           assert result["dimensions"] == len(result["embedding"]) == 300
+
+          from pathlib import Path
+          import urllib.error
+
+          boundary = "assignment2-image-boundary"
+          image = Path("assets/cifar10_sample.png").read_bytes()
+          body = (
+              f"--{boundary}\r\n"
+              'Content-Disposition: form-data; name="file"; filename="sample.png"\r\n'
+              "Content-Type: image/png\r\n\r\n"
+          ).encode() + image + f"\r\n--{boundary}--\r\n".encode()
+          request = urllib.request.Request(
+              base + "/classify", data=body,
+              headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
+          )
+          with urllib.request.urlopen(request, timeout=120) as response:
+              result = json.load(response)
+          expected = json.loads(Path("training_results.json").read_text())["sample"]
+          assert result == {
+              "class_id": expected["predicted_class_id"],
+              "class_name": expected["predicted_class_name"],
+          }
+          invalid_request = urllib.request.Request(
+              base + "/classify", data=body.replace(image, b"not an image"),
+              headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
+          )
+          try:
+              urllib.request.urlopen(invalid_request, timeout=30)
+          except urllib.error.HTTPError as error:
+              assert error.code == 400
+          else:
+              raise AssertionError("Invalid images must be rejected")
+
+          with urllib.request.urlopen(base + "/generate-image?num_samples=4&seed=42", timeout=120) as response:
+              assert response.headers.get_content_type() == "image/png"
+              png = response.read()
+          assert png[:8] == b"\x89PNG\r\n\x1a\n"
+          assert struct.unpack(">II", png[16:24]) == (62, 62)
+          try:
+              urllib.request.urlopen(base + "/generate-image?num_samples=0", timeout=30)
+          except urllib.error.HTTPError as error:
+              assert error.code == 422
+          else:
+              raise AssertionError("Invalid sample counts must be rejected")
           print("All Docker API checks passed")
           PY
       - name: Show container logs on failure

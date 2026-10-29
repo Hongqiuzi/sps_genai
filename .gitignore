@@ -4,3 +4,7 @@
 .uv-cache/
 __pycache__/
 .env
+data/
+.pip-cache/
+*.tmp
+training_run.log

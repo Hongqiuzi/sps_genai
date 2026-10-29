@@ -1,0 +1,77 @@
+{
+  "dataset": "torchvision.datasets.MNIST (training split)",
+  "train_examples": 60000,
+  "image_shape": [
+    1,
+    28,
+    28
+  ],
+  "normalization": "(pixel / 255 - 0.5) / 0.5",
+  "epochs": 10,
+  "batch_size": 128,
+  "seed": 42,
+  "device": "cpu",
+  "optimizer": "Adam",
+  "learning_rate": 0.0002,
+  "betas": [
+    0.5,
+    0.999
+  ],
+  "latent_dim": 100,
+  "generator_parameters": 765761,
+  "discriminator_parameters": 138817,
+  "history": [
+    {
+      "epoch": 1,
+      "discriminator_loss": 0.3793718783855438,
+      "generator_loss": 2.225461438560486
+    },
+    {
+      "epoch": 2,
+      "discriminator_loss": 0.35369824628829954,
+      "generator_loss": 2.417957082271576
+    },
+    {
+      "epoch": 3,
+      "discriminator_loss": 0.3746486596743266,
+      "generator_loss": 2.4550224745114644
+    },
+    {
+      "epoch": 4,
+      "discriminator_loss": 0.385150005308787,
+      "generator_loss": 2.4080101888020833
+    },
+    {
+      "epoch": 5,
+      "discriminator_loss": 0.3755909683863322,
+      "generator_loss": 2.4547841747283936
+    },
+    {
+      "epoch": 6,
+      "discriminator_loss": 0.3897002626736959,
+      "generator_loss": 2.4817885265986126
+    },
+    {
+      "epoch": 7,
+      "discriminator_loss": 0.374377286529541,
+      "generator_loss": 2.562172069740295
+    },
+    {
+      "epoch": 8,
+      "discriminator_loss": 0.3576745857556661,
+      "generator_loss": 2.6483079950968422
+    },
+    {
+      "epoch": 9,
+      "discriminator_loss": 0.34846207826932274,
+      "generator_loss": 2.76812579720815
+    },
+    {
+      "epoch": 10,
+      "discriminator_loss": 0.3035628360589345,
+      "generator_loss": 2.8415121196746824
+    }
+  ],
+  "sample_file": "assets/mnist_gan_sample.png",
+  "sample_seed": 42
+}
